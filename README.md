@@ -36,6 +36,23 @@ skills, it makes the thing that makes skills. For the full walk-through — what
 happens at each step, what you're asked, what comes out — see
 **[docs/walkthrough.md](docs/walkthrough.md)**.
 
+## What it's for, and what it isn't
+
+Worth two minutes before you install.
+
+**For:** writing more than one skill, under conventions that are yours rather
+than a template author's; keeping several people's skills consistent without
+reviewing every one; having those conventions re-checked rather than merely
+written down.
+
+**Not for:** writing the skill's content — neither tool invents anything;
+discovering or distributing other people's skills; running them, which is
+Claude's job. And not worth the setup for a single skill you'll never repeat —
+copy `template/` instead, which is a supported path, not a consolation prize.
+
+The longer version, including who tends to decide against it, is in
+**[docs/what-this-is.md](docs/what-this-is.md)**.
+
 ## Layout
 
 ```
@@ -50,6 +67,27 @@ skill-boilerplate/
 ├── template/
 └── tests/
 ```
+
+Only one of those is the product. The skill is `skills/skill-boilerplate/`, and
+it runs on its own with nothing else from here. The rest is the workshop it's
+built in — needed to change it, test it and hand it to someone else, not to use
+it.
+
+| Folder | Who it's for | Needed to run the skill? |
+| :--- | :--- | :--- |
+| `skills/skill-boilerplate/` | anyone using it | **Yes — this is the skill** |
+| `template/` | someone skipping the wizard | No |
+| `tests/` | someone changing the code | No |
+| `scripts/` | someone building the archive | No |
+| `.claude-plugin/` | Claude Code, at install time | No |
+| `.github/` | GitHub — issues, reviews, CI | No |
+| `docs/` | someone deciding whether to install | No |
+
+One asymmetry worth knowing before you wonder why your disk has test files on
+it: uploading the zip or copying the folder brings the skill alone, while
+installing as a plugin clones the whole repository. That's what makes
+`/plugin update` work. The extra folders sit unread — Claude only looks inside
+`skills/`.
 
 Skills live under `skills/`, and the separation is deliberate in both
 directions: repository files never go inside a skill folder, and a skill folder
@@ -177,6 +215,31 @@ manifests, the community files and the licence.
 
 No dependencies to install. CI runs the same command on Linux, macOS and
 Windows, and on the oldest Python the README claims to support.
+
+## Updating and extending
+
+A new version of the boilerplate never touches skills you've already written —
+they're plain folders with no link back to what made them. Your generated tool
+carries a copy of the scripts as they were the day it was made, so a later fix
+reaches it by copying one file across or by regenerating.
+
+Three values in `.skill-config.json` can be edited at any time without
+regenerating: the group names, the word cap, and the starting version. Anything
+else means starting over, on purpose.
+
+Adding your own skills alongside this one, forking it as your own collection,
+and cutting a release are all in
+**[docs/maintaining.md](docs/maintaining.md)**.
+
+## Documentation
+
+| Page | Answers |
+| :--- | :--- |
+| [what-this-is.md](docs/what-this-is.md) | Repository vs skill, what it's for, what it isn't |
+| [walkthrough.md](docs/walkthrough.md) | Install, answer, generate, make a skill |
+| [configuration.md](docs/configuration.md) | What each of the twelve questions decides |
+| [maintaining.md](docs/maintaining.md) | Updating, extending, forking, releasing |
+| [spec.md](docs/spec.md) | The skill format itself, in one page |
 
 ## Security
 

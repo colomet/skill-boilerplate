@@ -619,6 +619,51 @@ class RepositoryTests(unittest.TestCase):
         for relative in sorted(cited):
             self.assertTrue(os.path.exists(os.path.join(ROOT, relative)), relative)
 
+    def test_every_relative_link_in_the_docs_resolves(self):
+        """A broken link is invisible until someone clicks it.
+
+        Checks every relative Markdown link in the repository's prose against
+        the filesystem, and every `#anchor` against the headings of the file
+        it points into. Documentation grows by cross-reference, so this is the
+        check most likely to earn its place later rather than today.
+        """
+        import re
+
+        pages = [os.path.join(ROOT, "README.md"),
+                 os.path.join(ROOT, "CHANGELOG.md")]
+        for folder in ("docs", ".github"):
+            for base, _, files in os.walk(os.path.join(ROOT, folder)):
+                pages += [os.path.join(base, f)
+                          for f in files if f.endswith(".md")]
+
+        link = re.compile(r"\[[^\]]+\]\((?!https?://|mailto:)([^)]+)\)")
+        broken = []
+        for page in pages:
+            with open(page, encoding="utf-8") as f:
+                text = f.read()
+            for target in link.findall(text):
+                path, _, anchor = target.partition("#")
+                if not path:
+                    continue  # same-page anchor
+                resolved = os.path.normpath(
+                    os.path.join(os.path.dirname(page), path))
+                if not os.path.exists(resolved):
+                    broken.append("{} -> {}".format(
+                        os.path.relpath(page, ROOT), target))
+                    continue
+                if anchor and resolved.endswith(".md"):
+                    with open(resolved, encoding="utf-8") as f:
+                        headings = re.findall(r"^#+\s+(.*)$", f.read(),
+                                              re.MULTILINE)
+                    slugs = {re.sub(r"[^a-z0-9]+", "-",
+                                    h.lower().replace("`", "")).strip("-")
+                             for h in headings}
+                    if anchor not in slugs:
+                        broken.append("{} -> {} (no such heading)".format(
+                            os.path.relpath(page, ROOT), target))
+
+        self.assertEqual(broken, [], "broken links: " + "; ".join(broken))
+
     def test_no_readme_inside_a_skill_folder(self):
         skill_dir = os.path.join(ROOT, "skills")
         for base, _, files in os.walk(skill_dir):

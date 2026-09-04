@@ -7,6 +7,26 @@ Format: [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.1.0] — 2026-09-04
+
+### Added
+- `docs/what-this-is.md`: what the repository is as against what the skill is,
+  which folders are needed to run it and which only to maintain it, what the
+  project is for, what it isn't for, and who tends to decide against it.
+- `docs/maintaining.md`: updating along each of the three install routes,
+  getting a later script fix into a tool already generated, what can be edited
+  in `.skill-config.json` without regenerating, adding further skills, forking
+  the repository under another name, and cutting a release.
+- `docs/README.md`: an index of the five pages, ordered by when each question
+  tends to arrive.
+- A folder table in `README.md` saying who each directory is for and whether it
+  is needed to run the skill, plus the asymmetry between install routes — the
+  plugin clones the whole repository, the other two bring the skill alone.
+- A `README.md` section on what the project is for and what it isn't.
+- A test resolving every relative link and `#anchor` across `README.md`,
+  `CHANGELOG.md`, `docs/` and `.github/`. Documentation grows by
+  cross-reference, and a broken link is invisible until someone clicks it.
+
 ## [0.0.3] — 2026-09-04
 
 ### Fixed
