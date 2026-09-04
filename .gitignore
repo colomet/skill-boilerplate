@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.pytest_cache/
+.venv/
+
+# Packaged skills, built from the source folders and not committed.
+*.zip
+*.skill
+
+# The setup lock. It appears if you run the configurator from a clone rather
+# than from an installed copy; it records local state, not repository state.
+.configured

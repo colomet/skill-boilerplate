@@ -1,0 +1,12 @@
+# What is expected to be irregular here, and why.
+#
+#   path/          a path -- a trailing slash matches everything beneath it
+#   !checkname     a whole check, disabled for this skill only
+#
+# Both are reported in the output rather than hidden: a silenced check nobody
+# can see is a check nobody will ever reconsider. Keep the reason specific
+# enough that the next reader can tell whether it still holds.
+
+scripts/templates/   # Template fragments hold unsubstituted tokens by design, and cite paths that exist only in the generated skill
+
+!version             # This configurator is versioned with the repository CHANGELOG, not with the conventions it sets up -- it builds the collection rather than belonging to it
