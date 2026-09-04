@@ -674,6 +674,29 @@ class SkillZipTests(unittest.TestCase):
             for name in zf.namelist():
                 self.assertNotIn("\\", name, name)
 
+    def test_display_path_survives_paths_on_different_drives(self):
+        """The printed path must never be able to fail the build.
+
+        On Windows runners the checkout is on `D:` and the temp directory on
+        `C:`, and `os.path.relpath` raises across drives. That turned a
+        cosmetic line into a crash. Simulated here by making relpath raise,
+        so the guard is checked on every platform rather than only where the
+        drives happen to differ.
+        """
+        real = os.path.relpath
+
+        def raising(*args, **kwargs):
+            raise ValueError("path is on mount 'C:', start on mount 'D:'")
+
+        os.path.relpath = raising
+        try:
+            shown = self.builder.display_path(os.path.join(ROOT, "README.md"))
+        finally:
+            os.path.relpath = real
+
+        self.assertTrue(os.path.isabs(shown), shown)
+        self.assertIn("README.md", shown)
+
     def test_refuses_a_folder_that_is_not_a_skill(self):
         empty = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, empty, True)

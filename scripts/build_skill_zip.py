@@ -48,6 +48,20 @@ def collect_files(skill_dir):
     return collected
 
 
+def display_path(path, start=None):
+    """A short path to print, falling back to the absolute one.
+
+    `os.path.relpath` raises on Windows when the two paths sit on different
+    drives -- which is the normal case there, since the temp directory is on
+    `C:` and a checkout often isn't. Nothing depends on this string beyond
+    reading it, so a long path beats an exception.
+    """
+    try:
+        return os.path.relpath(path, start if start is not None else os.getcwd())
+    except ValueError:
+        return os.path.abspath(path)
+
+
 def build(skill_dir, output_dir):
     skill_dir = os.path.abspath(skill_dir)
     if not os.path.isdir(skill_dir):
@@ -79,7 +93,7 @@ def build(skill_dir, output_dir):
             )
         )
 
-    print("{}  ({} files)".format(os.path.relpath(archive, os.getcwd()), len(written)))
+    print("{}  ({} files)".format(display_path(archive), len(written)))
     print("Upload it at claude.ai: Customize > Skills > + > Upload a skill.")
     return archive
 

@@ -7,6 +7,16 @@ Format: [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.0.3] — 2026-09-04
+
+### Fixed
+- `build_skill_zip.py` no longer crashes when the archive and the working
+  directory sit on different drives. `os.path.relpath` raises in that case,
+  and on Windows runners it is the normal case: the checkout is on `D:` and
+  the temp directory on `C:`. The path was only ever printed, so the failure
+  came from a cosmetic line rather than from the work it reported. The lookup
+  now falls back to the absolute path.
+
 ## [0.0.2] — 2026-09-04
 
 ### Fixed
@@ -24,6 +34,8 @@ Format: [Keep a Changelog](https://keepachangelog.com).
   security advisory form and the two docs pages.
 - A regression test asserting `walk_files` yields forward slashes. It passes
   trivially on Linux and macOS; it earns its place because CI runs Windows.
+- A regression test forcing `os.path.relpath` to raise, so the guard added in
+  0.0.3 is checked everywhere rather than only where drives differ.
 
 ## [0.0.1] — 2026-09-04
 
