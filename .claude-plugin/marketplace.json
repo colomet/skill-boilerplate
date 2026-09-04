@@ -1,0 +1,17 @@
+{
+  "name": "colomet-skills",
+  "description": "Skills published by colomet.",
+  "owner": {
+    "name": "Antonio D.",
+    "url": "https://github.com/colomet"
+  },
+  "plugins": [
+    {
+      "name": "skill-boilerplate",
+      "source": "./",
+      "description": "A setup wizard that asks how you name, version and lay out skills, then generates a personalised skill-creating skill from your answers.",
+      "category": "productivity",
+      "tags": ["skills", "boilerplate", "scaffolding"]
+    }
+  ]
+}

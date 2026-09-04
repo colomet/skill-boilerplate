@@ -1,9 +1,9 @@
 ---
-name: skill-configurator
+name: skill-boilerplate
 description: "One-time setup wizard that generates a personalized skill-creator. Use when the user has just installed this boilerplate and wants to configure it, says 'set up the skill creator', 'configure the boilerplate', 'let's set this up', 'I want to start making skills', or asks how to get started with this repo. Runs once, asks eleven questions about naming conventions, versioning, layout and scope, plus one for what to call the result, then writes a ready-to-use skill-creating skill. Do NOT use this to create an individual skill -- that is what the generated tool does afterwards."
 ---
 
-# Skill Configurator
+# Skill Boilerplate
 
 Runs **once**. Asks eleven plain questions about how you want your skills
 named, versioned and documented, then generates a skill -- named in Q12,
@@ -13,7 +13,7 @@ The questions assume no prior knowledge of the skill format. If a question
 needs a term the user may not know, the question explains the term first.
 
 After it runs, you use the generated skill for everything. This
-configurator has no further purpose.
+boilerplate has no further purpose.
 
 ## When NOT to use this
 
@@ -21,7 +21,7 @@ configurator has no further purpose.
   If it already exists, send the user there.
 - **To change a decision made during setup.** This is deliberately one-shot
   (see *Why one-shot* below). To reconfigure: delete the generated
-  the generated skill, re-download this boilerplate, install it fresh.
+  skill, re-download this boilerplate, install it fresh.
 - **To learn the SKILL.md format.** That is `docs/spec.md`.
 
 ---
@@ -37,7 +37,7 @@ ls -a <this-skill-folder>/ | grep -x '.configured'
 
 If `.configured` exists, **stop**. Do not re-run the questions. Tell the user:
 
-> This configurator has already run. Your generated skill is configured and
+> This boilerplate has already run. Your generated skill is configured and
 > ready to use — just ask it to create a skill. To start over with different
 > answers, delete the generated skill, re-download the boilerplate
 > and install it fresh.
@@ -48,14 +48,14 @@ the user's collection, setup has run. Say so and stop.
 
 ### Why it carries no version of its own
 
-This configurator is versioned with the repository, in the top-level
+This boilerplate is versioned with the repository, in the top-level
 `CHANGELOG.md` — not with the conventions it is about to set up. It does not
 belong to the collection it creates, so a version number here would be a second
 copy of a number that already lives somewhere else, free to drift.
 
 ### Why one-shot
 
-A configurator you can re-run mid-life produces a split ecosystem: skills made
+A setup you can re-run mid-life produces a split ecosystem: skills made
 before the change follow one convention, skills made after follow another, and
 nothing records which is which. Locking the decisions keeps a single answer to
 "how are skills named here" for as long as the install lasts. The cost —
@@ -285,16 +285,16 @@ result to the user as a downloadable archive for them to install. Say plainly
 that this is what you did; a user who thinks a skill was installed when it
 wasn't will wonder why nothing works.
 
-The script writes:
+The script writes, under the name chosen in Q12:
 
 ```
-skill-creator/
+my-skill-creator/
 ├── SKILL.md              assembled from the answers
 ├── .skill-config.json    the answers, machine-readable
 ├── scripts/
 │   ├── scaffold_skill.py
 │   └── validate_skill.py
-└── CHANGELOG.md          only if Q6 = A
+└── CHANGELOG.md          only if Q3 = A
 ```
 
 Then write the lock, if the folder is writable:
@@ -304,8 +304,8 @@ touch <this-skill-folder>/.configured
 ```
 
 Report what was generated, then stop. Do not offer to create a skill in the
-same breath — the user should start that as a fresh request, so the new
-the generated skill gets a clean trigger.
+same breath — the user should start that as a fresh request, so the
+generated skill gets a clean trigger.
 
 Say one thing more before stopping, because it's the only thing here that is
 still adjustable:

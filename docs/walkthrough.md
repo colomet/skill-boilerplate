@@ -9,29 +9,33 @@ for the file format itself, [spec.md](spec.md).
 There are two tools, and confusing them is the easiest mistake to make. They
 look similar and do entirely different jobs.
 
-| | `skill-configurator` | the tool it generates |
+| | `skill-boilerplate` | the tool it generates |
 |---|---|---|
 | Runs | **Once**, ever | Every time you want a new skill |
 | Asks about | Conventions for your whole collection | What *this one* skill does |
 | Lives | Until setup is done | For as long as you keep making skills |
 | Then | Can be deleted | Stays |
 
-The configurator does not make skills. It makes the thing that makes skills.
+The boilerplate does not make skills. It makes the thing that makes skills.
 
 ---
 
 ## Part one — setup, once
 
-### 1. Install the configurator
+### 1. Install the boilerplate
 
-Copy `skills/skill-configurator/` to wherever your environment keeps skills:
+Any of three ways. All install the same skill.
 
-- **Claude.ai** — zip the folder, then Settings → Capabilities → Skills → upload
-- **Claude Code** — drop it in your skills directory, or install this repo as a
-  plugin
+- **Claude.ai** — take `skill-boilerplate.zip` from the latest release, or build
+  it with `python3 scripts/build_skill_zip.py`, then Customize → Skills → **+** →
+  Upload a skill. The archive root has to be the skill folder, which is why
+  zipping the repository doesn't work.
+- **Claude Code, as a plugin** — `/plugin marketplace add colomet/skill-boilerplate`
+  then `/plugin install skill-boilerplate@colomet-skills`
+- **Claude Code, by hand** — `cp -r skills/skill-boilerplate ~/.claude/skills/`
 
-Nothing else from this repository needs to go with it. The configurator folder
-is self-contained; `docs/`, `tests/` and `template/` are for people reading the
+Nothing else from this repository needs to go with it. The skill folder is
+self-contained; `docs/`, `tests/` and `template/` are for people reading the
 repo, not for the tool.
 
 ### 2. Start it
@@ -97,7 +101,7 @@ my-skill-creator/
 
 A `CHANGELOG.md` appears here too if you asked for one from the start.
 
-Install this the same way you installed the configurator. The configurator has
+Install this the same way you installed the boilerplate. The boilerplate has
 no further purpose — delete it whenever you like.
 
 ---
@@ -153,11 +157,11 @@ repeating the values, so a change takes effect with nothing else to update. The
 file says which keys these are, under `_readme`.
 
 **Everything else means starting over**: delete the generated tool, re-download
-this repo, install the configurator fresh. Those answers decided what text got
+this repo, install the boilerplate fresh. Those answers decided what text got
 written into the skill, so changing them in the JSON would make the scripts do
 one thing while the instructions still describe another.
 
-That's deliberate. A configurator you can re-run mid-life produces a split
+That's deliberate. A setup you can re-run mid-life produces a split
 collection — skills built under the old answers, skills built under the new
 ones, and nothing recording which is which.
 

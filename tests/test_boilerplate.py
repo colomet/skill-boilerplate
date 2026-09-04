@@ -17,9 +17,11 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
+import importlib.util
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-GENERATOR = os.path.join(ROOT, "skills", "skill-configurator", "scripts",
+GENERATOR = os.path.join(ROOT, "skills", "skill-boilerplate", "scripts",
                          "generate_skill_creator.py")
 
 MAXIMAL = {
@@ -494,7 +496,7 @@ class GeneratedScriptTests(unittest.TestCase):
         """A user copying a generated frontmatter example must not inherit
         brackets that are forbidden there."""
         import glob
-        base = os.path.join(ROOT, "skills", "skill-configurator", "scripts",
+        base = os.path.join(ROOT, "skills", "skill-boilerplate", "scripts",
                             "templates")
         for path in [os.path.join(base, "skill_creator_base.md")] + \
                 glob.glob(os.path.join(base, "fragments", "*.md")):
@@ -513,6 +515,144 @@ class GeneratedScriptTests(unittest.TestCase):
         run([self.validate, self.root])
         for path, mtime in before.items():
             self.assertEqual(os.path.getmtime(path), mtime, path)
+
+
+class RepositoryTests(unittest.TestCase):
+    """Checks on the repository itself, not on generated output.
+
+    Every one of these exists because the thing it checks was wrong once, in a
+    way nothing failed on: a misspelt directory, a placeholder left in a legal
+    notice, a documented path that had never existed. A convention nobody
+    re-checks is a convention that drifts.
+    """
+
+    def test_github_directory_is_spelled_correctly(self):
+        # A misspelt .github is invisible to GitHub: no templates, no CI, no error.
+        self.assertTrue(os.path.isdir(os.path.join(ROOT, ".github")))
+        for name in os.listdir(ROOT):
+            if name.startswith(".git") and name not in (".git", ".github", ".gitignore"):
+                self.fail("Unexpected dot-git directory at the repository root: " + name)
+
+    def test_community_files_are_where_github_looks(self):
+        for relative in (
+            ".github/CONTRIBUTING.md",
+            ".github/CODE_OF_CONDUCT.md",
+            ".github/PULL_REQUEST_TEMPLATE.md",
+            ".github/ISSUE_TEMPLATE/bug_report.md",
+            ".github/ISSUE_TEMPLATE/feature_request.md",
+        ):
+            self.assertTrue(os.path.isfile(os.path.join(ROOT, relative)), relative)
+
+        # A pull request template inside ISSUE_TEMPLATE/ is never picked up.
+        issue_dir = os.path.join(ROOT, ".github", "ISSUE_TEMPLATE")
+        for name in os.listdir(issue_dir):
+            self.assertNotIn("PULL_REQUEST", name.upper())
+            self.assertNotIn("CONTRIBUTING", name.upper())
+            self.assertNotIn("CODE_OF_CONDUCT", name.upper())
+
+    def test_license_has_a_copyright_holder(self):
+        with open(os.path.join(ROOT, "LICENSE"), encoding="utf-8") as f:
+            text = f.read()
+        self.assertNotIn("[COPYRIGHT HOLDER", text)
+        self.assertNotIn("FILL IN", text.upper())
+
+    def test_manifests_are_valid_json_and_agree(self):
+        with open(os.path.join(ROOT, ".claude-plugin", "plugin.json"),
+                  encoding="utf-8") as f:
+            plugin = json.load(f)
+        with open(os.path.join(ROOT, ".claude-plugin", "marketplace.json"),
+                  encoding="utf-8") as f:
+            market = json.load(f)
+
+        self.assertIn("name", plugin)
+        self.assertIn("name", market)
+        self.assertIn("owner", market)
+        self.assertIn("name", market["owner"])
+
+        entries = market["plugins"]
+        self.assertEqual(len(entries), 1)
+        entry = entries[0]
+        self.assertEqual(entry["name"], plugin["name"])
+        self.assertTrue(entry["source"] == "./" or entry["source"].startswith("./"))
+        # The docs warn that a version in both places lets a stale manifest win.
+        self.assertNotIn("version", entry)
+
+    def test_documented_paths_exist(self):
+        """Every repo-relative path named in the community files is real."""
+        cited = {
+            "tests/test_boilerplate.py",
+            "skills/skill-boilerplate/scripts",
+            "scripts/build_skill_zip.py",
+            "template",
+            "docs",
+            "CHANGELOG.md",
+            "README.md",
+            "LICENSE",
+        }
+        for relative in sorted(cited):
+            self.assertTrue(os.path.exists(os.path.join(ROOT, relative)), relative)
+
+    def test_no_readme_inside_a_skill_folder(self):
+        skill_dir = os.path.join(ROOT, "skills")
+        for base, _, files in os.walk(skill_dir):
+            for name in files:
+                self.assertNotEqual(name.lower(), "readme.md",
+                                    os.path.join(base, name))
+
+
+class SkillZipTests(unittest.TestCase):
+    """The archive shape claude.ai accepts, checked rather than assumed."""
+
+    script = os.path.join(ROOT, "scripts", "build_skill_zip.py")
+    source = os.path.join(ROOT, "skills", "skill-boilerplate")
+
+    @classmethod
+    def setUpClass(cls):
+        # Import the builder rather than restating its exclusion rules here.
+        # A second copy of that list would drift, and the test would then be
+        # checking a rule the script no longer applies.
+        spec = importlib.util.spec_from_file_location("build_skill_zip", cls.script)
+        cls.builder = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.builder)
+
+    def build(self):
+        out = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, out, True)
+        result = run([self.script, self.source, "--output-dir", out])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        archive = os.path.join(out, "skill-boilerplate.zip")
+        self.assertTrue(os.path.isfile(archive), "no archive written")
+        return archive
+
+    def test_archive_root_is_the_skill_folder(self):
+        with zipfile.ZipFile(self.build()) as zf:
+            names = [n for n in zf.namelist() if not n.endswith("/")]
+        self.assertTrue(names)
+        for name in names:
+            self.assertTrue(name.startswith("skill-boilerplate/"), name)
+        self.assertIn("skill-boilerplate/SKILL.md", names)
+
+    def test_no_file_is_silently_dropped(self):
+        """A zip missing a folder installs cleanly and behaves half-written."""
+        expected = len(self.builder.collect_files(self.source))
+        self.assertGreater(expected, 1)
+        with zipfile.ZipFile(self.build()) as zf:
+            self.assertEqual(
+                len([n for n in zf.namelist() if not n.endswith("/")]), expected)
+
+    def test_paths_use_forward_slashes(self):
+        # Backslashes in an archive path are not a separator to every reader,
+        # so a zip built on Windows must look like one built anywhere else.
+        with zipfile.ZipFile(self.build()) as zf:
+            for name in zf.namelist():
+                self.assertNotIn("\\", name, name)
+
+    def test_refuses_a_folder_that_is_not_a_skill(self):
+        empty = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, empty, True)
+        result = run([self.script, empty])
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("SKILL.md", result.stderr)
 
 
 if __name__ == "__main__":

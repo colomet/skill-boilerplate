@@ -212,7 +212,7 @@ for them when it's written.
 
 ## Why one-shot
 
-A configurator you can re-run mid-life produces a split collection: skills built
+A setup you can re-run mid-life produces a split collection: skills built
 under the old answers, skills built under the new ones, and nothing recording
 which is which. Six months later nobody can tell whether `finance-report`
 follows the current convention or a retired one.

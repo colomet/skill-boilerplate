@@ -7,7 +7,8 @@ __pycache__/
 # Packaged skills, built from the source folders and not committed.
 *.zip
 *.skill
+dist/
 
-# The setup lock. It appears if you run the configurator from a clone rather
+# The setup lock. It appears if you run the boilerplate from a clone rather
 # than from an installed copy; it records local state, not repository state.
 .configured

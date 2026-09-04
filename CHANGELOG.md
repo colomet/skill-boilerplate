@@ -5,7 +5,24 @@ history, in whatever format was chosen at setup time.
 
 Format: [Keep a Changelog](https://keepachangelog.com).
 
-## [0.0.1]
+## [Unreleased]
+
+## [0.0.1] — 2026-09-04
+
+First public release.
 
 ### Added
-- Initial version.
+- `skill-boilerplate`: a one-shot setup wizard that asks eleven questions
+  about naming, versioning and documentation, plus one for what to call the
+  result, then generates a personalised skill-creating skill.
+- `template/`: a bare skill skeleton for anyone who would rather skip the
+  wizard.
+- Test suite covering the generator across minimal and maximal configurations,
+  both generated scripts, and the guarantee that the validator doesn't modify
+  what it inspects. Standard library only.
+- `scripts/build_skill_zip.py`: builds the archive claude.ai accepts, with the
+  skill folder as the archive root.
+- Claude Code plugin and marketplace manifests, so the repository installs with
+  `/plugin marketplace add`.
+- Issue and pull request templates, contributing guide, code of conduct, and a
+  CI workflow running the tests on Linux, macOS and Windows.

@@ -1,0 +1,13 @@
+{
+  "name": "skill-boilerplate",
+  "description": "A setup wizard that asks how you name, version and lay out skills, then generates a personalised skill-creating skill from your answers.",
+  "version": "0.0.1",
+  "author": {
+    "name": "Antonio D.",
+    "url": "https://github.com/colomet"
+  },
+  "homepage": "https://github.com/colomet/skill-boilerplate",
+  "repository": "https://github.com/colomet/skill-boilerplate",
+  "license": "Apache-2.0",
+  "keywords": ["skills", "boilerplate", "scaffolding", "conventions"]
+}

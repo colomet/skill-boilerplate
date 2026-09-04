@@ -1,0 +1,41 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: ${{ matrix.os }} · Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The floor the README claims. Pinned to 22.04 because the 3.8 build
+          # is not published for newer Ubuntu runner images.
+          - os: ubuntu-22.04
+            python-version: '3.8'
+          - os: ubuntu-latest
+            python-version: '3.12'
+          - os: macos-latest
+            python-version: '3.12'
+          - os: windows-latest
+            python-version: '3.12'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # `python`, not `python3`: setup-python guarantees the former on all
+      # three runners, the latter is unreliable on Windows.
+      - name: Run the test suite
+        run: python tests/test_boilerplate.py
+
+      - name: Build the uploadable skill archive
+        run: python scripts/build_skill_zip.py

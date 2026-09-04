@@ -9,4 +9,4 @@
 
 scripts/templates/   # Template fragments hold unsubstituted tokens by design, and cite paths that exist only in the generated skill
 
-!version             # This configurator is versioned with the repository CHANGELOG, not with the conventions it sets up -- it builds the collection rather than belonging to it
+!version             # This boilerplate is versioned with the repository CHANGELOG, not with the conventions it sets up -- it builds the collection rather than belonging to it
