@@ -1,0 +1,20 @@
+# Controls the chooser shown by "New issue".
+#
+# blank_issues_enabled: false pushes people into one of the two templates.
+# Both ask for the things that otherwise cost a round trip -- the reproduction
+# steps, the Python version, whether the proposal adds a convention.
+
+blank_issues_enabled: false
+
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/colomet/skill-boilerplate/security/advisories/new
+    about: Report privately instead. Please don't open a public issue for this.
+
+  - name: How the setup questions work
+    url: https://github.com/colomet/skill-boilerplate/blob/main/docs/configuration.md
+    about: What each of the twelve questions decides, and why setup runs once.
+
+  - name: Walkthrough
+    url: https://github.com/colomet/skill-boilerplate/blob/main/docs/walkthrough.md
+    about: Install, answer, generate, use — the whole path start to finish.

@@ -80,12 +80,22 @@ def parse_frontmatter(text):
 
 
 def walk_files(root, exts):
+    """Yield paths relative to `root`, always separated by `/`.
+
+    The separator is normalised here, at the one place a relative path is
+    produced, rather than at each place one is compared. On Windows
+    `os.path.relpath` returns `references\\templates\\frag.md`, which matches
+    no `references/templates/` prefix in `.skillcheck-ignore` and appears in
+    findings in a form the ignore file cannot name -- so the file would be
+    silently inert on one platform and the reports would differ on another.
+    """
     for base, dirs, files in os.walk(root):
         dirs[:] = [d for d in dirs
                    if d not in (".git", "__pycache__", ".pytest_cache")]
         for name in files:
             if name.endswith(exts):
-                yield os.path.relpath(os.path.join(base, name), root)
+                rel = os.path.relpath(os.path.join(base, name), root)
+                yield rel.replace(os.sep, "/")
 
 
 def load_ignore(root):

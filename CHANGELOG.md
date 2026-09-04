@@ -7,6 +7,24 @@ Format: [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.0.2] — 2026-09-04
+
+### Fixed
+- `validate_skill.py` now reports relative paths with `/` on every platform.
+  On Windows `os.path.relpath` returns backslashes, so no directory prefix in
+  `.skillcheck-ignore` ever matched and the file was silently inert. The
+  separator is normalised in `walk_files`, where the path is produced, rather
+  than at each place one is compared. This affects every skill the boilerplate
+  generates, since the validator is copied into each one.
+
+### Added
+- `SECURITY.md`, giving the private reporting route named in `CONTRIBUTING.md`
+  and `CODE_OF_CONDUCT.md` a page of its own.
+- `.github/ISSUE_TEMPLATE/config.yml`: turns off blank issues and points at the
+  security advisory form and the two docs pages.
+- A regression test asserting `walk_files` yields forward slashes. It passes
+  trivially on Linux and macOS; it earns its place because CI runs Windows.
+
 ## [0.0.1] — 2026-09-04
 
 First public release.

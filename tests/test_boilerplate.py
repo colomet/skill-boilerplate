@@ -506,6 +506,33 @@ class GeneratedScriptTests(unittest.TestCase):
                          if "<" in l and not l.lstrip().startswith(">")]
             self.assertEqual(offenders, [], f"{os.path.basename(path)}: {offenders}")
 
+    def test_relative_paths_are_reported_with_forward_slashes(self):
+        """`.skillcheck-ignore` names paths with `/` on every platform.
+
+        Trivially true where `os.sep` is already `/`; it earns its place
+        because CI runs this on Windows, where an un-normalised
+        `os.path.relpath` would make every directory prefix in the ignore
+        file inert without reporting anything.
+        """
+        spec = importlib.util.spec_from_file_location(
+            "validate_skill", self.validate)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        skill = self._write_skill("slashes")
+        os.makedirs(os.path.join(skill, "references", "templates"))
+        stub = os.path.join(skill, "references", "templates", "frag.md")
+        with open(stub, "w", encoding="utf-8") as f:
+            f.write("# Fragment\n")
+
+        found = list(module.walk_files(skill, (".md",)))
+        self.assertIn("references/templates/frag.md", found)
+        for rel in found:
+            self.assertNotIn("\\", rel, rel)
+        self.assertTrue(
+            module.is_ignored("references/templates/frag.md",
+                              {"references/templates/"}))
+
     def test_validator_never_modifies(self):
         before = {}
         for base, _, files in os.walk(self.root):
