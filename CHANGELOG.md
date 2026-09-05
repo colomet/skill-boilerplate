@@ -7,6 +7,23 @@ Format: [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-09-05
+
+### Added
+- A "Two ways to be here" section at the top of `README.md`, before anything
+  else. GitHub shows the file listing above the README, so the first thing a
+  visitor sees is `tests/`, `scripts/` and `template/` with no indication that
+  none of them is the product. Install and contribute now part company in the
+  first screen rather than at line 56.
+
+### Changed
+- Release notes are appended below anything written by hand instead of being
+  skipped. Overwriting would lose the author's text; skipping lost the line
+  saying which of the three downloads to take, which is the only thing on that
+  page for someone arriving to install. Re-running is idempotent: notes that
+  already name the archive are left untouched, so a second run neither
+  duplicates the block nor replaces text above it.
+
 ## [0.2.0] — 2026-09-05
 
 ### Changed

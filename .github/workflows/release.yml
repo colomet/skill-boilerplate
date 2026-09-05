@@ -120,13 +120,21 @@ jobs:
           TAG: ${{ steps.tag.outputs.name }}
         run: |
           if gh release view "$TAG" >/dev/null 2>&1; then
-            # Never overwrite notes a human wrote. Only fill them in when the
-            # release was published empty.
+            # Keep whatever a human wrote and add the generated notes below it.
+            # Overwriting would lose their text; skipping would lose the line
+            # saying which of the three downloads to take -- and that line is
+            # the whole point of the page for anyone arriving to install.
             existing=$(gh release view "$TAG" --json body -q .body)
-            if [ -z "$existing" ]; then
-              gh release edit "$TAG" --notes-file release-notes.md
+            if printf '%s' "$existing" | grep -q 'skill-boilerplate.zip'; then
+              # A previous run already added them. Re-running must not append
+              # a second copy, nor replace text written above the first.
+              echo "Notes already name the archive; leaving them as they are."
             else
-              echo "Release already has notes; leaving them alone."
+              if [ -n "$existing" ]; then
+                { printf '%s\n\n---\n\n' "$existing"; cat release-notes.md; } > merged.md
+                mv merged.md release-notes.md
+              fi
+              gh release edit "$TAG" --notes-file release-notes.md
             fi
           else
             gh release create "$TAG" \

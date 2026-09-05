@@ -13,6 +13,24 @@ and documentation, plus one more for what to call the result. Then it generates
 a skill with your answers
 built in, and steps out of the way.
 
+## Two ways to be here
+
+GitHub shows you this repository before it shows you the README, so: most of
+what you see is not the thing.
+
+**To use it** — download `skill-boilerplate.zip` from the
+[latest release](https://github.com/colomet/skill-boilerplate/releases) and
+upload it to Claude. That archive holds one folder, `skills/skill-boilerplate/`,
+which is the whole product. You never need the rest, and you never need to
+clone. [Installing](#getting-started).
+
+**To change it** — clone the repository. `tests/`, `scripts/` and `.github/`
+are how this boilerplate is built, checked and released; they are deliberately
+absent from every download, so working on the code means cloning rather than
+using the Download ZIP button. [Contributing](.github/CONTRIBUTING.md).
+
+The [Layout](#layout) table says which folder is which.
+
 ## How it works
 
 ```
