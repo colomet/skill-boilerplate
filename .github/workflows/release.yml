@@ -12,9 +12,16 @@ name: release
 # -- but the notes say which one to take.
 
 on:
+  # Pushing a tag. Creating a release in the web UI also lands here, because
+  # that creates the tag -- but only when the tag is new.
   push:
     tags:
       - 'v*'
+  # Covers the case the push event misses: a release published against a tag
+  # that already existed.
+  release:
+    types: [published]
+  # And by hand, against any tag, from the Actions tab.
   workflow_dispatch:
     inputs:
       tag:
@@ -24,6 +31,12 @@ on:
 permissions:
   contents: write
 
+# Both triggers can fire for one release. Let the second wait rather than
+# cancel: uploading is idempotent, a half-finished upload is not.
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.event.release.tag_name || github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -31,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.tag || github.ref }}
+          ref: ${{ github.event.inputs.tag || github.event.release.tag_name || github.ref }}
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
@@ -40,7 +53,7 @@ jobs:
 
       - name: Resolve the tag
         id: tag
-        run: echo "name=${{ github.event.inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+        run: echo "name=${{ github.event.inputs.tag || github.event.release.tag_name || github.ref_name }}" >> "$GITHUB_OUTPUT"
 
       # A tag that disagrees with the manifest ships a plugin reporting a
       # version nobody can find. Cheaper to fail here than to withdraw later.
@@ -101,7 +114,14 @@ jobs:
           TAG: ${{ steps.tag.outputs.name }}
         run: |
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release edit "$TAG" --notes-file release-notes.md
+            # Never overwrite notes a human wrote. Only fill them in when the
+            # release was published empty.
+            existing=$(gh release view "$TAG" --json body -q .body)
+            if [ -z "$existing" ]; then
+              gh release edit "$TAG" --notes-file release-notes.md
+            else
+              echo "Release already has notes; leaving them alone."
+            fi
           else
             gh release create "$TAG" \
               --title "$TAG" \
