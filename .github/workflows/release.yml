@@ -1,0 +1,110 @@
+name: release
+
+# Cutting a release is: push a tag. Everything below happens on its own.
+#
+#   git tag v0.1.0 && git push origin v0.1.0
+#
+# The archive claude.ai accepts cannot be one of GitHub's automatic "Source
+# code" downloads: those are rooted at `<repo>-<tag>/` with the skill buried
+# under `skills/`, and an upload has to be rooted at the skill folder itself.
+# So the archive is built here and attached as a release asset. The two source
+# downloads still appear -- GitHub always adds them and they cannot be removed
+# -- but the notes say which one to take.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to build and attach to'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Resolve the tag
+        id: tag
+        run: echo "name=${{ github.event.inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      # A tag that disagrees with the manifest ships a plugin reporting a
+      # version nobody can find. Cheaper to fail here than to withdraw later.
+      - name: Check the tag matches the manifest
+        run: |
+          python - <<'PY'
+          import json, os, sys
+          tag = os.environ["TAG"].lstrip("v")
+          declared = json.load(open(".claude-plugin/plugin.json"))["version"]
+          if tag != declared:
+              sys.exit(
+                  "Tag %r and .claude-plugin/plugin.json %r disagree.\n"
+                  "Update the manifest and the changelog, then retag."
+                  % (tag, declared))
+          print("tag and manifest agree on %s" % declared)
+          PY
+        env:
+          TAG: ${{ steps.tag.outputs.name }}
+
+      # The full matrix already ran on the commit this tag points at. This is a
+      # last gate: never attach an archive built from a tree that fails.
+      - name: Run the test suite
+        run: python tests/test_boilerplate.py
+
+      - name: Build the uploadable skill archive
+        run: python scripts/build_skill_zip.py
+
+      - name: Take the release notes from the changelog
+        run: |
+          python - <<'PY'
+          import io, os, re
+          tag = os.environ["TAG"].lstrip("v")
+          text = io.open("CHANGELOG.md", encoding="utf-8").read()
+          match = re.search(
+              r"^## \[%s\][^\n]*\n(.*?)(?=^## \[|\Z)" % re.escape(tag),
+              text, re.M | re.S)
+          body = match.group(1).strip() if match else ""
+          intro = (
+              "**Download `skill-boilerplate.zip` below** and upload it at "
+              "claude.ai under Customize > Skills > + > Upload a skill.\n\n"
+              "The two \"Source code\" downloads are the whole repository, "
+              "added by GitHub. They are not in the shape an upload needs.\n\n"
+              "For Claude Code:\n\n"
+              "```\n/plugin marketplace add colomet/skill-boilerplate\n"
+              "/plugin install skill-boilerplate@colomet-skills\n```\n")
+          io.open("release-notes.md", "w", encoding="utf-8").write(
+              intro + ("\n---\n\n" + body if body else ""))
+          print(intro[:80])
+          PY
+        env:
+          TAG: ${{ steps.tag.outputs.name }}
+
+      # `gh` is preinstalled on the runner, so no third-party action is trusted
+      # with a write token here.
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.name }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file release-notes.md
+          else
+            gh release create "$TAG" \
+              --title "$TAG" \
+              --notes-file release-notes.md
+          fi
+          gh release upload "$TAG" dist/skill-boilerplate.zip --clobber

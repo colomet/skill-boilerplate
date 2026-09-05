@@ -26,6 +26,22 @@ Format: [Keep a Changelog](https://keepachangelog.com).
 - A test resolving every relative link and `#anchor` across `README.md`,
   `CHANGELOG.md`, `docs/` and `.github/`. Documentation grows by
   cross-reference, and a broken link is invisible until someone clicks it.
+- `.github/workflows/release.yml`: pushing a `v*` tag now builds
+  `skill-boilerplate.zip` and attaches it to the release, with notes cut from
+  the matching changelog section. It refuses to publish when the tag and
+  `.claude-plugin/plugin.json` disagree, and uses the runner's own `gh` rather
+  than handing a write token to a third-party action.
+- `.gitattributes`: `text=auto eol=lf`, so a checkout on Windows no longer
+  writes CRLF into every skill packaged there. `export-ignore` keeps `tests/`,
+  `scripts/` and `.github/` out of anything built by `git archive` — both
+  "Source code" downloads and the Code > Download ZIP button — on the
+  reasoning that a release is for installing and a clone is for changing.
+  `skills/`, `template/`, `docs/` and the manifests stay in.
+- Tests for both workflows: indentation and required keys, the write token
+  kept to the release workflow alone, `python` rather than `python3` in the
+  matrix, the attached filename agreeing with the one the docs promise, the
+  declared version having a changelog section, and the line-ending rules
+  read past their own comments.
 
 ## [0.0.3] — 2026-09-04
 

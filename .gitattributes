@@ -1,0 +1,46 @@
+# Line endings, first.
+#
+# Without this, a checkout on Windows gets CRLF and every file written by the
+# scripts inherits it -- so a skill packaged there ships different bytes from
+# the same skill packaged on Linux, and diffs turn into whole-file rewrites.
+# `text=auto eol=lf` stores and checks out LF everywhere.
+* text=auto eol=lf
+
+# Binary, so git never tries to normalise them.
+*.png binary
+*.jpg binary
+*.zip binary
+
+# ---------------------------------------------------------------------------
+# What a download contains
+#
+# Two audiences, and they don't arrive the same way:
+#
+#   Using it     -> the release page. Wants the skill and enough prose to
+#                   install it. Has no use for a test suite.
+#   Changing it  -> `git clone`. Wants everything, and gets everything:
+#                   `export-ignore` has no effect on a clone.
+#
+# So the lines below trim development scaffolding out of anything built with
+# `git archive` -- both "Source code" downloads on a release, and the green
+# Code > Download ZIP button. Cloning is unaffected, which is why CONTRIBUTING
+# tells contributors to clone rather than download.
+#
+# Two things this cannot do, written here so they aren't rediscovered:
+#
+#   1. It cannot remove the "Source code" downloads. GitHub attaches them to
+#      every release and there is no setting to turn them off. It can only
+#      make them smaller.
+#   2. It cannot produce the archive claude.ai accepts. That has to be rooted
+#      at the skill folder, and `git archive` always roots at `<repo>-<tag>/`,
+#      leaving the skill under `skills/`. The upload is
+#      `skill-boilerplate.zip`, built by `scripts/build_skill_zip.py` and
+#      attached by `.github/workflows/release.yml`.
+#
+# Kept in: `skills/` (the skill itself), `template/` (the no-wizard path),
+# `docs/`, `README.md`, `LICENSE`, `CHANGELOG.md`, `.claude-plugin/`.
+/tests          export-ignore
+/scripts        export-ignore
+/.github        export-ignore
+/.gitattributes export-ignore
+/.gitignore     export-ignore

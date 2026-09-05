@@ -160,19 +160,50 @@ See [CONTRIBUTING.md](../.github/CONTRIBUTING.md) for the workflow.
 
 ## Publishing a version
 
-For whoever maintains a fork, in order:
+For whoever maintains a fork. Pushing a tag does the rest.
 
 1. Update `CHANGELOG.md` — move `[Unreleased]` entries under a dated version.
 2. Update `version` in `.claude-plugin/plugin.json` to match. Don't add a
    `version` to the marketplace entry as well; when both carry one, the stale
    manifest wins silently.
-3. Wait for CI to pass. A release built on a red commit is a release nobody
-   should install.
-4. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`
-5. Build the archive: `python3 scripts/build_skill_zip.py`
-6. Create the release on GitHub and attach `dist/skill-boilerplate.zip`. The
-   README links to the latest release as the primary install route, so a
-   release without that attachment leaves the link pointing at nothing.
+3. Commit, and wait for CI to pass on `main`.
+4. Tag and push:
+
+```bash
+git tag v0.1.0 && git push origin v0.1.0
+```
+
+`.github/workflows/release.yml` takes it from there: it checks the tag against
+the manifest and stops if they disagree, runs the suite once more, builds
+`skill-boilerplate.zip`, creates the release, and attaches the archive with
+notes cut from the changelog section matching the tag.
+
+If a release already exists for that tag, the workflow updates its notes and
+replaces the asset rather than failing. You can also re-run it by hand from the
+Actions tab against any existing tag.
+
+### What a release page holds
+
+Three downloads, and only one is uploadable.
+
+| Download | What it is |
+| :--- | :--- |
+| `skill-boilerplate.zip` | **The one to upload.** Rooted at the skill folder |
+| Source code (zip) | The repository, minus development scaffolding |
+| Source code (tar.gz) | The same, other format |
+
+GitHub adds the two source downloads to every release and there is no setting
+to remove them. Neither is in the shape claude.ai accepts: `git archive` always
+roots at `<repo>-<tag>/`, leaving the skill under `skills/`, while an upload
+has to be rooted at the skill folder itself. `export-ignore` trims what goes
+in, not where the root sits — which is why the usable archive is built
+separately and attached, and why the notes open by naming it.
+
+What `export-ignore` does do is keep `tests/`, `scripts/` and `.github/` out of
+those two, on the reasoning that a release is for installing and a clone is for
+changing. That applies to the green **Code > Download ZIP** button as well, so
+anyone meaning to work on the code should clone rather than download —
+`CONTRIBUTING.md` says so.
 
 A version number that has been published is never reused, even for a fix that
 arrives minutes later. Someone may already have the old one.

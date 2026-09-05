@@ -11,6 +11,11 @@ feature. Worth agreeing on before the work is done.
 
 ## Workflow
 
+**Clone; don't download.** The two "Source code" downloads on a release, and
+the green **Code > Download ZIP** button, are built with `git archive`, and
+`.gitattributes` keeps `tests/`, `scripts/` and `.github/` out of them. Those
+downloads are for installing. Working on the code needs a clone.
+
 1. **Fork** the repository.
 2. **Create a branch** for your change:
    `git checkout -b fix/short-description`

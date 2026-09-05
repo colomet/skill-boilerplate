@@ -554,11 +554,16 @@ class RepositoryTests(unittest.TestCase):
     """
 
     def test_github_directory_is_spelled_correctly(self):
-        # A misspelt .github is invisible to GitHub: no templates, no CI, no error.
+        # A misspelt .github is invisible to GitHub: no templates, no CI, no
+        # error. Directories only -- `.gitignore` and `.gitattributes` are
+        # files and belong here.
         self.assertTrue(os.path.isdir(os.path.join(ROOT, ".github")))
         for name in os.listdir(ROOT):
-            if name.startswith(".git") and name not in (".git", ".github", ".gitignore"):
-                self.fail("Unexpected dot-git directory at the repository root: " + name)
+            path = os.path.join(ROOT, name)
+            if (name.startswith(".git") and os.path.isdir(path)
+                    and name not in (".git", ".github")):
+                self.fail("Unexpected dot-git directory at the repository "
+                          "root: " + name)
 
     def test_community_files_are_where_github_looks(self):
         for relative in (
@@ -663,6 +668,122 @@ class RepositoryTests(unittest.TestCase):
                             os.path.relpath(page, ROOT), target))
 
         self.assertEqual(broken, [], "broken links: " + "; ".join(broken))
+
+    def test_workflows_are_valid_yaml_and_scoped(self):
+        """A malformed workflow fails on GitHub, not here, and only once
+        pushed. Parsed with a hand-rolled reader so the suite keeps its
+        no-dependencies promise -- enough to catch a broken indent or a
+        missing key, which is what actually goes wrong."""
+        folder = os.path.join(ROOT, ".github", "workflows")
+        names = sorted(f for f in os.listdir(folder) if f.endswith(".yml"))
+        self.assertIn("tests.yml", names)
+        self.assertIn("release.yml", names)
+
+        for name in names:
+            with open(os.path.join(folder, name), encoding="utf-8") as f:
+                text = f.read()
+            self.assertRegex(text, r"(?m)^name:\s+\S", name)
+            self.assertRegex(text, r"(?m)^jobs:\s*$", name)
+            self.assertNotIn("\t", text, name + " uses a tab")
+            for line in text.split("\n"):
+                stripped = line.lstrip(" ")
+                if stripped and not stripped.startswith("#"):
+                    indent = len(line) - len(stripped)
+                    self.assertEqual(indent % 2, 0,
+                                     "{}: odd indent: {!r}".format(name, line))
+
+        with open(os.path.join(folder, "release.yml"), encoding="utf-8") as f:
+            release = f.read()
+        # A write token is the one thing here worth keeping narrow.
+        self.assertIn("contents: write", release)
+        self.assertNotIn("contents: read", release)
+        # `gh` ships on the runner; no third-party action gets the token.
+        self.assertIn("gh release upload", release)
+
+        with open(os.path.join(folder, "tests.yml"), encoding="utf-8") as f:
+            tests = f.read()
+        self.assertNotIn("permissions:", tests)
+        # `python3` is not reliably present on the Windows runners.
+        self.assertNotIn("python3 ", tests)
+
+    def test_release_asset_name_matches_what_the_docs_promise(self):
+        """The release workflow attaches one file and the prose names it. If
+        those drift, the download link in the README points at nothing."""
+        with open(os.path.join(ROOT, ".github", "workflows", "release.yml"),
+                  encoding="utf-8") as f:
+            release = f.read()
+        self.assertIn("dist/skill-boilerplate.zip", release)
+
+        spec = importlib.util.spec_from_file_location(
+            "build_skill_zip", os.path.join(ROOT, "scripts",
+                                            "build_skill_zip.py"))
+        builder = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(builder)
+        self.assertEqual(
+            os.path.basename(builder.DEFAULT_SKILL) + ".zip",
+            "skill-boilerplate.zip")
+
+    def test_changelog_documents_the_declared_version(self):
+        """The release notes are cut from the changelog section matching the
+        tag, and the tag is checked against the manifest. If the manifest
+        names a version the changelog never mentions, that release ships with
+        empty notes."""
+        with open(os.path.join(ROOT, ".claude-plugin", "plugin.json"),
+                  encoding="utf-8") as f:
+            declared = json.load(f)["version"]
+        with open(os.path.join(ROOT, "CHANGELOG.md"), encoding="utf-8") as f:
+            changelog = f.read()
+        self.assertIn("## [{}]".format(declared), changelog,
+                      "plugin.json declares {} but CHANGELOG.md has no such "
+                      "section".format(declared))
+
+    def test_gitattributes_pins_line_endings(self):
+        """Without this, a checkout on Windows writes CRLF into every skill
+        packaged there, so the same skill ships different bytes per platform."""
+        with open(os.path.join(ROOT, ".gitattributes"), encoding="utf-8") as f:
+            raw = f.read()
+        # Comments in this file quote the very rules being checked, so reading
+        # the whole text would pass on prose alone.
+        rules = "\n".join(line for line in raw.split("\n")
+                          if line.strip() and not line.lstrip().startswith("#"))
+        self.assertRegex(rules, r"(?m)^\*\s+text=auto\s+eol=lf\b")
+
+    def test_source_archive_holds_what_a_user_installs(self):
+        """Which paths `git archive` would drop, asked of git itself.
+
+        Both "Source code" downloads on a release and the Code > Download ZIP
+        button are `git archive`, so `export-ignore` decides what a user who
+        never clones ends up with. Asserting on the text of `.gitattributes`
+        would only prove the file says something; `git check-attr` proves git
+        reads it the same way. It resolves against the working tree, so this
+        holds before the change is committed as well as after.
+        """
+        probe = subprocess.run(["git", "check-attr", "export-ignore", "--",
+                                "README.md"],
+                               cwd=ROOT, capture_output=True, text=True)
+        if probe.returncode != 0:
+            self.skipTest("git unavailable or not a checkout")
+
+        def ignored(path):
+            result = subprocess.run(
+                ["git", "check-attr", "export-ignore", "--", path],
+                cwd=ROOT, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return result.stdout.strip().endswith(": set")
+
+        # A directory pattern names the directory, not the files under it --
+        # `git archive` drops the whole subtree, but `check-attr` on a file
+        # inside reports nothing. So ask about the same paths the patterns name.
+        for wanted in ("skills", "template", "docs", "README.md", "LICENSE",
+                       "CHANGELOG.md", ".claude-plugin"):
+            self.assertTrue(os.path.exists(os.path.join(ROOT, wanted)), wanted)
+            self.assertFalse(ignored(wanted),
+                             wanted + " must stay in the source archive")
+
+        # What only matters to someone changing the code, who clones instead.
+        for dropped in ("tests", "scripts", ".github"):
+            self.assertTrue(ignored(dropped),
+                            dropped + " should be export-ignored")
 
     def test_no_readme_inside_a_skill_folder(self):
         skill_dir = os.path.join(ROOT, "skills")

@@ -111,7 +111,9 @@ Pick whichever matches where you use Claude. All three install the same skill.
 **claude.ai (web or desktop)** — upload a zip whose root is the skill folder.
 Grab `skill-boilerplate.zip` from the
 [latest release](https://github.com/colomet/skill-boilerplate/releases),
-then go to **Customize > Skills > + > Upload a skill**.
+then go to **Customize > Skills > + > Upload a skill**. Take that file, not
+either "Source code" download — those are the whole repository, and an upload
+has to be rooted at the skill folder.
 
 Building it yourself from a clone works too — zipping the repository does not,
 because the archive root has to be the skill folder:
