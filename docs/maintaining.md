@@ -173,6 +173,9 @@ For whoever maintains a fork. Pushing a tag does the rest.
 git tag v0.1.0 && git push origin v0.1.0
 ```
 
+`0.1.0` without the `v` works too — both shapes trigger the workflow, and the
+version check strips a leading `v` before comparing.
+
 `.github/workflows/release.yml` takes it from there: it checks the tag against
 the manifest and stops if they disagree, runs the suite once more, builds
 `skill-boilerplate.zip`, creates the release, and attaches the archive with

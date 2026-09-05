@@ -14,9 +14,15 @@ name: release
 on:
   # Pushing a tag. Creating a release in the web UI also lands here, because
   # that creates the tag -- but only when the tag is new.
+  #
+  # Both shapes are accepted. `v0.1.0` is what the docs suggest, but `0.1.0`
+  # is just as reasonable a thing to type, and a tag that silently matches no
+  # trigger is the worst outcome: the release is cut and nothing is attached,
+  # with no failure anywhere to notice.
   push:
     tags:
-      - 'v*'
+      - 'v[0-9]*'
+      - '[0-9]*'
   # Covers the case the push event misses: a release published against a tag
   # that already existed.
   release:

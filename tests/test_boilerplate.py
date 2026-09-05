@@ -785,6 +785,31 @@ class RepositoryTests(unittest.TestCase):
             self.assertTrue(ignored(dropped),
                             dropped + " should be export-ignored")
 
+    def test_release_triggers_on_both_tag_shapes(self):
+        """`v0.1.0` and `0.1.0` must both reach the workflow.
+
+        A tag matching no trigger is the worst failure available here: the
+        release gets cut, nothing is attached, and no run appears anywhere to
+        say so. The version check strips a leading `v`, so both shapes are
+        already handled downstream -- this makes sure both arrive.
+        """
+        import fnmatch
+        import re as _re
+
+        with open(os.path.join(ROOT, ".github", "workflows", "release.yml"),
+                  encoding="utf-8") as f:
+            text = f.read()
+
+        block = _re.search(r"(?ms)^  push:\n    tags:\n((?:\s+- .*\n)+)", text)
+        self.assertIsNotNone(block, "no tag filter in release.yml")
+        patterns = _re.findall(r"- '([^']+)'", block.group(1))
+        self.assertTrue(patterns)
+
+        for tag in ("v0.1.0", "0.1.0", "v1.2.3", "10.0.0"):
+            self.assertTrue(
+                any(fnmatch.fnmatch(tag, p) for p in patterns),
+                "{} matches none of {}".format(tag, patterns))
+
     def test_no_readme_inside_a_skill_folder(self):
         skill_dir = os.path.join(ROOT, "skills")
         for base, _, files in os.walk(skill_dir):
