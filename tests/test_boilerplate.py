@@ -810,6 +810,40 @@ class RepositoryTests(unittest.TestCase):
                 any(fnmatch.fnmatch(tag, p) for p in patterns),
                 "{} matches none of {}".format(tag, patterns))
 
+    def test_documented_questions_match_the_ones_asked(self):
+        """`docs/configuration.md` reproduces every question verbatim.
+
+        Two copies of the same wording drift, and the failure is quiet: the
+        page reads plausibly while describing options nobody is offered. So
+        the copy is checked against the source rather than trusted.
+        """
+        import re as _re
+
+        with open(os.path.join(ROOT, "skills", "skill-boilerplate", "SKILL.md"),
+                  encoding="utf-8") as f:
+            skill = f.read()
+        with open(os.path.join(ROOT, "docs", "configuration.md"),
+                  encoding="utf-8") as f:
+            page = f.read()
+
+        blocks = _re.findall(r"```\n(Q\d+.*?)```", skill, _re.S)
+        asked = {}
+        for block in blocks:
+            for part in _re.split(r"(?m)^(?=Q\d+\s)", block):
+                if part.strip():
+                    number = _re.match(r"Q(\d+)", part).group(1)
+                    asked["Q" + number] = part.rstrip("\n")
+
+        self.assertEqual(len(asked), 12,
+                         "expected twelve questions, found {}".format(
+                             sorted(asked)))
+
+        for name in sorted(asked, key=lambda k: int(k[1:])):
+            self.assertIn(
+                asked[name], page,
+                "{} in docs/configuration.md no longer matches the question "
+                "the skill asks".format(name))
+
     def test_no_readme_inside_a_skill_folder(self):
         skill_dir = os.path.join(ROOT, "skills")
         for base, _, files in os.walk(skill_dir):

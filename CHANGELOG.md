@@ -7,6 +7,32 @@ Format: [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-09-05
+
+### Changed
+- Setup now opens by saying what the questions are for — that none of them asks
+  what your skills will do, that every question can be answered no, and that it
+  runs once — before the first option appears. Most people never open the
+  documentation and shouldn't have to.
+- Q1, Q2, Q3, Q4, Q5, Q8, Q9 and Q11 rewritten to say what is being decided and
+  what the choice would change. Several named a thing without saying what it
+  was for: Q1 didn't say the names were the skills', Q5 didn't say a name of
+  what, Q8 showed a table without saying where it goes or why, and Q11's
+  options described three folders rather than the sub-folder question actually
+  being asked. Q2 now asks about recording a change rather than about wanting
+  numbers, and Q3 says plainly that you write the entries yourself.
+- `docs/configuration.md` now reproduces every question word for word above the
+  explanation of what it decides, so all twelve can be read through at leisure
+  without a prompt waiting. A test fails if the two copies ever drift. It also
+  opens with what the questions are collectively about, and says plainly that
+  it isn't required reading. Prose that merely restated a question has been cut
+  rather than left to say the same thing twice.
+
+### Fixed
+- `.github/workflows/release.yml` accepts `0.1.0` as well as `v0.1.0`. The
+  filter was `v*`, so a bare version tag matched no trigger at all — cutting a
+  release with nothing attached and no failed run anywhere to notice.
+
 ## [0.1.0] — 2026-09-04
 
 ### Added

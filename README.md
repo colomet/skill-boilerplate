@@ -239,7 +239,7 @@ and cutting a release are all in
 | :--- | :--- |
 | [what-this-is.md](docs/what-this-is.md) | Repository vs skill, what it's for, what it isn't |
 | [walkthrough.md](docs/walkthrough.md) | Install, answer, generate, make a skill |
-| [configuration.md](docs/configuration.md) | What each of the twelve questions decides |
+| [configuration.md](docs/configuration.md) | All twelve questions in full, and what each decides |
 | [maintaining.md](docs/maintaining.md) | Updating, extending, forking, releasing |
 | [spec.md](docs/spec.md) | The skill format itself, in one page |
 

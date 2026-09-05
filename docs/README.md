@@ -6,7 +6,7 @@ Five pages, in the order the questions tend to arrive.
 | :--- | :--- |
 | [what-this-is.md](what-this-is.md) | What's the repository, what's the skill, what is this for — and what it isn't for |
 | [walkthrough.md](walkthrough.md) | The whole path: install, answer, generate, make a skill |
-| [configuration.md](configuration.md) | What each of the twelve questions decides, and why setup runs once |
+| [configuration.md](configuration.md) | All twelve questions in full, what each decides, and why setup runs once |
 | [maintaining.md](maintaining.md) | Updating, editing without regenerating, extending, forking, releasing |
 | [spec.md](spec.md) | The skill format itself — the rules that come from the format, not from here |
 

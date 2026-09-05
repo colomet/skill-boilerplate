@@ -64,7 +64,43 @@ right trade.
 
 ---
 
-## Step 1 — The eleven questions
+## Step 1 — Say what the questions are for, then ask them
+
+### First, this. Before any option appears.
+
+Most people will never open the documentation, and shouldn't have to. Show
+them this — in their own language, keeping the shape and every specific — and
+wait for them to be ready before Q1:
+
+> You're about to set up your own skill-building tool. Twelve questions, two
+> minutes or so.
+>
+> **None of them asks what your skills will do.** They decide the house rules
+> every skill you write from now on will follow: how they're named, whether
+> they carry version numbers, what each one looks like inside, and what gets
+> checked before you call one finished.
+>
+> At the end you get a new skill of your own. From then on you ask *that* one
+> to build things, and it applies these rules every time without asking again.
+>
+> Two things worth knowing before you start:
+>
+> - **Every question has a "no" option, and "no" is a real answer.** Answering
+>   no to everything gives you a plain tool with no house rules, which is the
+>   right outcome for plenty of people.
+> - **This runs once.** Afterwards it locks itself. Changing your mind means
+>   installing this again from scratch and answering again — so it's worth
+>   reading the options rather than taking the first.
+>
+> Ready?
+
+If they ask why it can only run once, answer in a sentence — a tool you can
+re-run halfway through produces a collection split between old rules and new
+ones, and nothing to say which skill follows which — and offer
+`docs/configuration.md` for the longer version. Don't volunteer the link
+otherwise.
+
+### Then the questions
 
 Four rounds, using `ask_user_input_v0`. Ask **all eleven**, in order,
 even where an answer seems inferable. This is the one moment where thorough
@@ -72,9 +108,10 @@ beats quick: every unasked question becomes a guess baked into every skill the
 user ever generates.
 
 **Write for someone who has never built a skill.** No jargon in the questions
-themselves — say what a thing is before asking about it, and make every option
-show a concrete example rather than name a category. Every question has a
-neutral option; nothing here is mandatory.
+themselves — say what a thing is, and what choosing it would change, before
+asking about it. Every option shows a concrete example rather than naming a
+category. If a question can't be understood without opening the docs, it is
+written wrong.
 
 **The rounds are grouped by dependency, not by topic.** Three questions in one
 round are answered simultaneously, so a question can never depend on another in
@@ -83,25 +120,37 @@ the same round. Round 2 exists because its questions need Round 1's answers.
 ### Round 1 — The three shapes
 
 ```
-Q1  Skill names are lowercase with hyphens instead of spaces. Beyond that,
-    do you want them grouped?
+Q1  Every skill you build will need a name. Names are lowercase with hyphens
+    instead of spaces -- `report-builder`, never `Report Builder`. That part
+    isn't a choice; the format requires it.
+
+    What you're choosing is whether a name should begin with a word saying
+    which area the skill belongs to. That prefix is what keeps forty skills
+    findable, and stops two people building the same thing under two names.
     A) No grouping            report-builder
     B) Grouped by area        finance-report-builder
     C) Area and sub-area      finance-monthly-report-builder
     D) I'll describe my own way
 
-Q2  Do you want version numbers on your skills?
-    A) A simple counter       4
-    B) Two levels             1.4
-    C) Three levels           1.4.0        (the usual choice for software)
+Q2  Each time you change a skill, do you want it to carry a number that goes
+    up? It's how you tell the copy you edited this morning from the one a
+    colleague installed last month.
+    A) A simple counter       4  ->  5
+    B) Two levels             1.4  ->  1.5
+    C) Three levels           1.4.0  ->  1.4.1   (the usual choice for software)
     D) Four levels            1.4.0.1
     E) No version numbers     (nothing in the format requires them)
 
-Q3  A changelog is a list of what changed in each version, so you can tell
-    later why something is the way it is. Do you want one?
-    A) Yes, from the very first version
-    B) Only once there's enough history to be worth its own file
-    C) No
+Q3  A changelog is where you write one line every time you change a skill,
+    saying what changed. It's how you answer "why is this like this?" months
+    later, when the reason has been forgotten.
+
+    You write those lines yourself -- your tool will remind you and give you
+    the format, but it can't know what you did.
+    A) Yes, from the very first version -- its own CHANGELOG.md file
+    B) Start small: a short table at the end of the skill itself, moved out
+       to its own file once it outgrows about 30 lines
+    C) No changelog
 ```
 
 ### Round 2 — Filling in Round 1
@@ -110,15 +159,18 @@ Skip any question whose answer Round 1 already settled: Q4 if names aren't
 grouped, Q6 if there are no version numbers.
 
 ```
-Q4  Which group names do you want to start with? This becomes the list new
-    names are checked against, so it's worth a moment's thought -- though you
-    can always add to it later.
+Q4  You chose grouped names, so every name will start with a group word --
+    the `finance` in `finance-report-builder`. Which groups do you want to
+    start with? New names get checked against this list, so a typo becomes
+    a caught mistake rather than a stray skill. You can add to it later.
     A) By department          finance, hr, ops, sales, legal, it
     B) By kind of work        research, writing, analysis, review
     C) I'll type my own
     D) None yet, I'll decide as I go
 
-Q5  How many words can a name have, separated by hyphens?
+Q5  How long should a skill's name be allowed to get? Counting the words
+    between hyphens, group word included. A cap keeps names scannable in a
+    list; no cap lets them say more.
     A) At most 2              finance-report
     B) At most 3              finance-monthly-report
     C) At most 4              finance-eu-monthly-report
@@ -133,21 +185,25 @@ Q6  What number does a brand-new skill start at?
 ### Round 3 — Presentation
 
 ```
-Q7  Should every skill you write use the same section layout -- the same
-    headings in the same order? A fixed layout lets you open a skill you
-    wrote months ago and find things without reading it through. No layout
-    means less ceremony on small skills.
+Q7  Inside each skill is one file, SKILL.md, holding the instructions. Should
+    every skill you write lay that file out the same way -- same headings, same
+    order? A fixed layout lets you open something you wrote months ago and find
+    the part you need without reading it through. No layout means less ceremony
+    on small skills.
     A) Same layout every time
     B) A suggested layout, ignore it when it doesn't fit
     C) No layout, write what each skill needs
 
-Q8  Some people put a small table of facts at the top of each skill, the
-    way a form has a header:
+Q8  Some people open each skill with a few lines of facts about it, the way a
+    form has a header -- so you can see what it is without reading the whole
+    thing:
 
         | Area    | Finance |
         | Version | 1.4.0   |
 
-    Which facts do you want in yours? (multi-select)
+    Do you want one at the top of every skill, and if so, which facts?
+    Pick only what you'll actually keep current: a stale line reads as true
+    and misleads, which is worse than no line at all.  (multi-select)
     Area / What it produces / Rules it follows / Related skills /
     Version / History / None -- no table
 ```
@@ -155,27 +211,32 @@ Q8  Some people put a small table of facts at the top of each skill, the
 ### Round 4 — What the tool does for you
 
 ```
-Q9  Skills load on their own, from their description -- you don't call them
-    by name. Sometimes the wrong one loads, or none does. Do you want a
-    procedure for testing that: write sample requests, check which skill
-    actually fires, fix the description?
+Q9  Skills load on their own, from their description -- you never call one by
+    name. Which means sometimes the wrong one loads, or none does, and it isn't
+    obvious why. Should your tool include a routine for checking that: write a
+    few sample requests, see which skill actually fires, reword the description
+    until the right one wins?
     A) Yes -- worth it once you have enough skills to compete with each other
     B) No -- overkill for a handful
 
-Q10 Before finishing a skill, a script can check it for broken links,
-    missing fields and unfilled placeholders. You get the script either
-    way; this decides whether running it is a required last step or up to
-    you each time.
+Q10 Before you call a skill finished, a script can check it for broken links,
+    missing fields and placeholders you forgot to fill in. You get that script
+    either way. This only decides whether your tool treats running it as a
+    required last step, or leaves it to you.
     A) Required step
     B) There if I want it
 
-Q11 A skill can carry extra files in up to three folders: `references/` for
-    documents it consults, `scripts/` for code it runs, `assets/` for
-    templates and images. When one fills up you may want to split it into
-    sub-folders.
-    A) Just those three, nothing else
-    B) Those three, plus sub-folder names I'll type
-    C) Decide case by case
+Q11 Besides its instructions, a skill can carry extra files, in three folders
+    the format already names: `references/` for documents it consults,
+    `scripts/` for code it runs, `assets/` for templates and images.
+
+    Those three are fixed. The question is what happens when one of them --
+    usually `references/` -- gets too full to scan, and you want to split it
+    into sub-folders. Agreeing those sub-folder names now means every skill
+    splits the same way.
+    A) Don't plan for it -- three folders, no sub-folders
+    B) Agree the sub-folder names now, and I'll type them
+    C) Leave it open -- split however each skill needs at the time
 ```
 
 ### One more, after the eleven: naming this tool itself

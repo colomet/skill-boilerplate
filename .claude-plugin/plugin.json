@@ -1,7 +1,7 @@
 {
   "name": "skill-boilerplate",
   "description": "A setup wizard that asks how you name, version and lay out skills, then generates a personalised skill-creating skill from your answers.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "Antonio D.",
     "url": "https://github.com/colomet"
