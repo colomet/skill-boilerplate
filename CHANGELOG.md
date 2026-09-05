@@ -7,6 +7,23 @@ Format: [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-09-05
+
+### Fixed
+- `scaffold_skill.py` now lays down the body structure chosen in Q7 and the
+  header fields chosen in Q8. It read `naming` only, so a user who asked for
+  the same headings every time got a tool that *stated* the required shape in
+  its instructions and then scaffolded a different, generic one. Nothing
+  checks headings, so every new skill started off-convention and the author
+  either restructured by hand or never noticed — a convention stated but not
+  laid down by the tool that creates skills.
+- "None -- no label" in Q8 now means no table at all, rather than an empty one.
+
+### Added
+- Tests covering all three `body_structure` answers and both `Q8` cases. The
+  gap above existed because the scaffolder's output was never checked against
+  the configuration that produced it.
+
 ## [0.5.0] — 2026-09-05
 
 ### Added

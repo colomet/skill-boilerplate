@@ -39,16 +39,80 @@ name: {name}
 # {title}
 
 [FILL IN: what this skill does, in a sentence or two.]
-
+{identification}
 ## When NOT to use this
 
 - [A situation this should not fire for -- especially if a neighbouring skill
   covers it]
+{sections}"""
 
+# The headings that `rigor.body_structure` calls for. Scaffolding them is the
+# point: a shape stated in the tool's instructions but not laid down by the
+# tool is a shape half the skills will miss, and nothing checks headings.
+FIXED_SECTIONS = """
+## 1. [Main section -- the what]
+
+[FILL IN]
+
+## 2. Process / flow
+
+[FILL IN: the steps, in order.]
+
+## 3. Standard output
+
+[FILL IN: the exact shape of the result -- structure, length, style.]
+
+## 4. Reference cases
+
+[Optional. Delete if there is nothing worth showing.]
+
+## 5. Handoff
+
+[Optional. Delete unless another skill picks up from here.]
+"""
+
+SUGGESTED_SECTIONS = """
+## 1. [Main section -- the what]
+
+[FILL IN]
+
+## 2. Process / flow
+
+[FILL IN: the steps, in order.]
+
+## 3. Standard output
+
+[FILL IN: the exact shape of the result.]
+
+<!-- Suggested shape, not required. Drop any section that doesn't fit,
+     and add whatever this skill actually needs. -->
+"""
+
+FREE_SECTIONS = """
 ## Instructions
 
 [FILL IN: the steps, rules or knowledge to follow.]
 """
+
+
+def body_sections(cfg):
+    """The section stubs, following `rigor.body_structure`."""
+    structure = (cfg or {}).get("rigor", {}).get("body_structure", "free")
+    return {"fixed": FIXED_SECTIONS,
+            "suggested": SUGGESTED_SECTIONS}.get(structure, FREE_SECTIONS)
+
+
+def identification_block(cfg):
+    """The header table from `rigor.identification_fields`, if any.
+
+    Written with the fields already named and the values left blank: a table
+    the author fills in beats one they have to remember to add.
+    """
+    fields = (cfg or {}).get("rigor", {}).get("identification_fields") or []
+    if not fields:
+        return ""
+    rows = "\n".join("| %s | [FILL IN] |" % f for f in fields)
+    return "\n| Field | Value |\n| --- | --- |\n%s\n" % rows
 
 CHANGELOG = """# Changelog
 
@@ -125,7 +189,9 @@ def scaffold(name, destination, folders, cfg):
     os.makedirs(root)
     title = " ".join(w.capitalize() for w in name.split("-"))
     with open(os.path.join(root, "SKILL.md"), "w", encoding="utf-8") as f:
-        f.write(SKILL_MD.format(name=name, title=title, metadata=metadata))
+        f.write(SKILL_MD.format(name=name, title=title, metadata=metadata,
+                               sections=body_sections(cfg),
+                               identification=identification_block(cfg)))
 
     created = ["SKILL.md"]
     if (cfg or {}).get("changelog") == "always":

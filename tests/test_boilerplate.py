@@ -255,6 +255,69 @@ class GeneratedScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertIn("0 errors", result.stdout)
 
+    def test_scaffold_lays_down_the_structure_that_was_chosen(self):
+        """Q7 and Q8 must reach the scaffolder, not just the instructions.
+
+        The generated tool used to *state* the required shape in prose while
+        scaffolding a different, generic one, and nothing checks headings --
+        so every skill started off-convention and the author had to
+        restructure by hand or not notice.
+        """
+        cases = {
+            "fixed": ["## 1.", "## 2. Process / flow", "## 3. Standard output",
+                      "## 4. Reference cases", "## 5. Handoff"],
+            "suggested": ["## 1.", "## 2. Process / flow",
+                          "## 3. Standard output"],
+            "free": ["## Instructions"],
+        }
+        for structure, expected in cases.items():
+            tmp = tempfile.mkdtemp()
+            self.addCleanup(shutil.rmtree, tmp, True)
+            config = json.loads(json.dumps(MAXIMAL))
+            config["rigor"]["body_structure"] = structure
+            config["rigor"]["identification_fields"] = ["Area", "Version"]
+            path = os.path.join(tmp, "config.json")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(config, f)
+            run([GENERATOR, "--config", path, "--destination", tmp])
+            tool = os.path.join(tmp, "my-skill-creator")
+
+            run([os.path.join(tool, "scripts", "scaffold_skill.py"),
+                 "ops-eu-shape", "--destination", tmp])
+            with open(os.path.join(tmp, "ops-eu-shape", "SKILL.md"),
+                      encoding="utf-8") as f:
+                text = f.read()
+
+            for heading in expected:
+                self.assertIn(heading, text,
+                              "{}: {} missing".format(structure, heading))
+            if structure != "free":
+                self.assertNotIn("## Instructions", text, structure)
+
+            # Q8's fields, named and waiting to be filled.
+            self.assertIn("| Area | [FILL IN] |", text, structure)
+            self.assertIn("| Version | [FILL IN] |", text, structure)
+
+    def test_scaffold_omits_the_table_when_no_fields_were_chosen(self):
+        """"None -- no label" has to mean no label, not an empty one."""
+        tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp, True)
+        config = json.loads(json.dumps(MAXIMAL))
+        config["rigor"]["identification_fields"] = []
+        path = os.path.join(tmp, "config.json")
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(config, f)
+        run([GENERATOR, "--config", path, "--destination", tmp])
+
+        run([os.path.join(tmp, "my-skill-creator", "scripts",
+                          "scaffold_skill.py"),
+             "ops-eu-plain", "--destination", tmp])
+        with open(os.path.join(tmp, "ops-eu-plain", "SKILL.md"),
+                  encoding="utf-8") as f:
+            text = f.read()
+        self.assertNotIn("| Field | Value |", text)
+        self.assertNotIn("[FILL IN] |", text)
+
     def test_scaffold_creates_only_requested_folders(self):
         run([self.scaffold, "ops-eu-report", "--destination", self.tmp,
              "--references"])
