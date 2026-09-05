@@ -24,6 +24,11 @@ upload it to Claude. That archive holds one folder, `skills/skill-boilerplate/`,
 which is the whole product. You never need the rest, and you never need to
 clone. [Installing](#getting-started).
 
+Setup will ask you twelve questions, and it only runs once. If you'd rather see
+them before deciding to install, they're all written out in
+**[docs/configuration.md](docs/configuration.md)** — word for word, with what
+each answer changes.
+
 **To change it** — clone the repository. `tests/`, `scripts/` and `.github/`
 are how this boilerplate is built, checked and released; they are deliberately
 absent from every download, so working on the code means cloning rather than

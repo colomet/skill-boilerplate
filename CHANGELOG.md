@@ -7,6 +7,36 @@ Format: [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-09-05
+
+### Changed
+- Q1's options now run from most grouping to none. Asking "do you want these
+  grouped?" and offering "no grouping" first argues against the question in
+  the same breath.
+- Q2 separates "no numbers at all" from the four formats, which were reading
+  as five variants of the same thing.
+- Q3 describes the list before naming it. "A changelog is..." only helps
+  someone who already knows the word.
+- Q6 opens by referring back to the version numbers asked for in Q2, and says
+  a version of what. It sits a round later because it depends on Q2, and
+  nothing on the page said so.
+- Q7 says the headings are sections inside SKILL.md, and points at Q9 for
+  folders. A reader took it for a question about folder structure, which is
+  what Q9 actually asks.
+- Q8 rewritten again. It showed a table without saying what the thing was; it
+  now describes a label at the top of a skill that says what you are holding
+  without reading it.
+- Sub-folders moved from Round 4 to Round 3 and renumbered Q9, with evaluation
+  and the packaging check becoming Q10 and Q11. Round 3 is what a skill looks
+  like inside, and folders belong there rather than among the things the
+  generated tool does for you. The mapping table and `docs/configuration.md`
+  follow the new order.
+
+### Added
+- A pointer from the top of `README.md` to the full list of questions, so
+  anyone can read all twelve before deciding to install rather than meeting
+  them one at a time in a wizard that only runs once.
+
 ## [0.3.0] — 2026-09-05
 
 ### Added

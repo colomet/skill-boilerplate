@@ -22,8 +22,8 @@ skill you write from then on will follow:
 |---|---|
 | 1 | How skills are named, whether they carry version numbers, whether you keep a changelog |
 | 2 | The specifics of whatever Round 1 turned on — which group names, how long a name can get, what number to start at |
-| 3 | What a skill looks like inside: a fixed layout or not, a header table of facts or not |
-| 4 | What your tool does for you: testing that the right skill loads, checking a skill before you finish it, planning for sub-folders |
+| 3 | What a skill looks like inside: the same headings every time or not, a label of facts at the top or not, how sub-folders get divided |
+| 4 | What your tool does for you: testing that the right skill loads, checking a skill before you call it finished |
 | 12th | What to call the tool you end up with |
 
 Every question has an option that turns the thing off, and turning everything
@@ -47,17 +47,17 @@ after "do you want groups at all?".
 ### Q1 · Grouping in names
 
 ```
-Q1  Every skill you build will need a name. Names are lowercase with hyphens
+Q1  Every skill you build needs a name. Names are lowercase with hyphens
     instead of spaces -- `report-builder`, never `Report Builder`. That part
     isn't a choice; the format requires it.
 
     What you're choosing is whether a name should begin with a word saying
     which area the skill belongs to. That prefix is what keeps forty skills
     findable, and stops two people building the same thing under two names.
-    A) No grouping            report-builder
-    B) Grouped by area        finance-report-builder
-    C) Area and sub-area      finance-monthly-report-builder
-    D) I'll describe my own way
+    A) Grouped by area        finance-report-builder
+    B) Area and sub-area      finance-monthly-report-builder
+    C) I'll describe my own way
+    D) No grouping            report-builder
 ```
 
 | Answer | Looks like | Fits when |
@@ -79,9 +79,10 @@ Q2  Each time you change a skill, do you want it to carry a number that goes
     colleague installed last month.
     A) A simple counter       4  ->  5
     B) Two levels             1.4  ->  1.5
-    C) Three levels           1.4.0  ->  1.4.1   (the usual choice for software)
-    D) Four levels            1.4.0.1
-    E) No version numbers     (nothing in the format requires them)
+    C) Three levels           1.4.0  ->  1.4.1    (the usual one for software)
+    D) Four levels            1.4.0.1  ->  1.4.0.2
+
+    E) No numbers at all -- nothing in the format requires them
 ```
 
 | Answer | Looks like |
@@ -102,16 +103,17 @@ not a lesser one.
 ### Q3 · Changelog
 
 ```
-Q3  A changelog is where you write one line every time you change a skill,
-    saying what changed. It's how you answer "why is this like this?" months
-    later, when the reason has been forgotten.
+Q3  When you change a skill, you can keep a running list: one line per change,
+    dated, saying what you did. Months later that list is the only way to
+    answer "why is this like this?", once the reason has left your memory.
 
-    You write those lines yourself -- your tool will remind you and give you
-    the format, but it can't know what you did.
-    A) Yes, from the very first version -- its own CHANGELOG.md file
-    B) Start small: a short table at the end of the skill itself, moved out
-       to its own file once it outgrows about 30 lines
-    C) No changelog
+    The usual name for such a list is a changelog. You write the lines
+    yourself -- your tool reminds you and gives you the shape, but it can't
+    know what you changed.
+    A) Yes, from day one -- each skill keeps its own CHANGELOG.md file
+    B) Start small -- a few lines at the end of the skill itself, moved out
+       to their own file once they pass about 30 lines
+    C) No list
 ```
 
 Its value shows up months later, when you're looking at something odd and want
@@ -185,7 +187,9 @@ a hint, not a law, which is why exceeding it warns rather than blocks.
 ### Q6 · Starting number
 
 ```
-Q6  What number does a brand-new skill start at?
+Q6  You asked for version numbers. What should a brand-new skill's version
+    be, before anyone has used it? (Shown three-level here; it will match
+    whichever shape you picked.)
     A) Start at one           1.0.0     -- it counts from the moment it works
     B) Start at zero          0.1.0     -- signals "still settling"
     C) Something else
@@ -197,61 +201,89 @@ settling and may change under you.
 
 ---
 
-## Round 3 — Presentation
+## Round 3 — What a skill looks like inside
 
-### Q7 · Same layout every time?
-
-```
-Q7  Inside each skill is one file, SKILL.md, holding the instructions. Should
-    every skill you write lay that file out the same way -- same headings, same
-    order? A fixed layout lets you open something you wrote months ago and find
-    the part you need without reading it through. No layout means less ceremony
-    on small skills.
-    A) Same layout every time
-    B) A suggested layout, ignore it when it doesn't fit
-    C) No layout, write what each skill needs
-```
-
-A fixed layout is worth it when you'll open a skill months after writing it: you
-know where to look without reading it through, and so does anyone else. No layout
-is less ceremony, which matters when most of your skills are short.
-
-The middle answer — a suggested layout you ignore when it doesn't fit — is the
-safe default if you're unsure.
-
-### Q8 · Table of facts
+### Q7 · Same headings every time?
 
 ```
-Q8  Some people open each skill with a few lines of facts about it, the way a
-    form has a header -- so you can see what it is without reading the whole
-    thing:
+Q7  A skill's instructions live in a single file, SKILL.md. Inside it you
+    write sections with headings -- what this is for, when to use it, how to
+    do it, what to watch out for.
+
+    Should every skill you write use the same headings, in the same order?
+    (This is about the sections inside that one file. Folders are Q9.)
+    A) Same headings every time
+    B) A suggested set, ignore it when it doesn't fit
+    C) No fixed set -- write whatever sections each skill needs
+```
+
+A fixed set is worth it when you'll open a skill months after writing it: you
+know where to look without reading it through, and so does anyone else. No fixed
+set is less ceremony, which matters when most of your skills are short.
+
+The middle answer — a suggested set you ignore when it doesn't fit — is the safe
+default if you're unsure.
+
+### Q8 · The label at the top
+
+```
+Q8  At the very top of a skill, before the instructions start, you can put a
+    few labelled facts about it -- the way a jar has a label, or a form has a
+    box on the first page. It tells you what you are holding without reading
+    the thing:
 
         | Area    | Finance |
         | Version | 1.4.0   |
 
-    Do you want one at the top of every skill, and if so, which facts?
-    Pick only what you'll actually keep current: a stale line reads as true
-    and misleads, which is worse than no line at all.  (multi-select)
+    Do you want that label on every skill, and if so, which lines go in it?
+    Pick only what stays true on its own: `Area` is settled the day you name
+    the skill, while `Related skills` needs revisiting every time you write
+    another one, and is the first line to go stale.  (multi-select)
     Area / What it produces / Rules it follows / Related skills /
-    Version / History / None -- no table
+    Version / History / None -- no label
 ```
 
-Pick fields that stay true without effort. `Area` is settled the day you name
-the skill; `Related skills` needs revisiting every time you write another one,
-and is the field most likely to go stale first.
+Pick fields that stay true on their own. `Area` is settled the day you name the
+skill; `Related skills` needs revisiting every time you write another one, and
+is the first to go stale. A stale line reads as current and misleads, which is
+worse than not having it.
+
+### Q9 · Sub-folders
+
+```
+Q9  Besides its instructions, a skill can carry extra files, in three folders
+    the format already names: `references/` for documents it consults,
+    `scripts/` for code it runs, `assets/` for templates and images.
+
+    Those three are fixed -- you are not choosing them. The question is what
+    happens when one of them, usually `references/`, gets too full to scan
+    and you want to divide it into sub-folders. Agreeing those sub-folder
+    names now means every skill divides the same way.
+    A) Don't plan for it -- the three folders, nothing inside them
+    B) Agree the sub-folder names now, and I'll type them
+    C) Leave it open -- divide however each skill needs at the time
+```
+
+- **Don't plan for it** — the three folders, nothing beneath them.
+- **Agree the names now** — every skill divides `references/` the same way.
+- **Leave it open** — divide however each skill needs, when it needs it.
+
+Whatever you choose, dividing happens *inside* `references/`, not by adding new
+folders at the top. `references/<area>/` is predictable to anyone who knows the
+format; an invented top-level name is not.
 
 ---
 
-## Round 4 — What the tool does for you
+## Round 4 — What your tool does for you
 
-### Q9 · Testing that skills load
+### Q10 · Testing that skills load
 
 ```
-Q9  Skills load on their own, from their description -- you never call one by
-    name. Which means sometimes the wrong one loads, or none does, and it isn't
-    obvious why. Should your tool include a routine for checking that: write a
-    few sample requests, see which skill actually fires, reword the description
-    until the right one wins?
+Q10 Skills load on their own, from their description -- you never call one by
+    name. Which means sometimes the wrong one loads, or none does, and it
+    isn't obvious why. Should your tool include a routine for checking that:
+    write a few sample requests, see which skill actually fires, reword the
+    description until the right one wins?
     A) Yes -- worth it once you have enough skills to compete with each other
     B) No -- overkill for a handful
 ```
@@ -266,43 +298,19 @@ conversations, and read which skill actually fired.
 Worth having once you have enough skills to compete with each other. Overkill
 for four.
 
-### Q10 · Checking before you finish
+### Q11 · Checking before you finish
 
 ```
-Q10 Before you call a skill finished, a script can check it for broken links,
-    missing fields and placeholders you forgot to fill in. You get that script
-    either way. This only decides whether your tool treats running it as a
-    required last step, or leaves it to you.
+Q11 Before you call a skill finished, a script can check it for broken links,
+    missing fields and placeholders you forgot to fill in. You get that
+    script either way. This only decides whether your tool treats running it
+    as a required last step, or leaves it to you.
     A) Required step
     B) There if I want it
 ```
 
 The script also catches files nothing points to. It reads and reports; it never
 modifies anything.
-
-### Q11 · Sub-folders
-
-```
-Q11 Besides its instructions, a skill can carry extra files, in three folders
-    the format already names: `references/` for documents it consults,
-    `scripts/` for code it runs, `assets/` for templates and images.
-
-    Those three are fixed. The question is what happens when one of them --
-    usually `references/` -- gets too full to scan, and you want to split it
-    into sub-folders. Agreeing those sub-folder names now means every skill
-    splits the same way.
-    A) Don't plan for it -- three folders, no sub-folders
-    B) Agree the sub-folder names now, and I'll type them
-    C) Leave it open -- split however each skill needs at the time
-```
-
-- **Don't plan for it** — the three folders, nothing beneath them.
-- **Agree the names now** — every skill splits `references/` the same way.
-- **Leave it open** — split however each skill needs, when it needs it.
-
-Whatever you choose, splitting happens *inside* `references/`, not by adding new
-folders at the top. `references/<area>/` is predictable to anyone who knows the
-format; an invented top-level name is not.
 
 ---
 
