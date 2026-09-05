@@ -7,6 +7,38 @@ Format: [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-09-05
+
+### Added
+- A density rule among the ones that hold regardless of the answers: write
+  facts as `Label: value` rather than as sentences about the value —
+  "This project was set up with scalability in mind, using Node" becomes
+  "Runtime: Node.js v20". The test is subtraction: cross a sentence out and
+  ask whether the model would do anything differently.
+
+  It is stated as separate from progressive disclosure, because the two were
+  being conflated. Moving text to `references/` divides it; writing densely
+  reduces it. A body split across four files is still long when the skill
+  fires, since the whole body loads then.
+
+  The rule carves out judgement explicitly. A reason that lets the model settle
+  a case the author didn't foresee earns its words; "this is important" does
+  not. What gets cut is the padding around a reason, not the reason.
+
+## [0.4.1] — 2026-09-05
+
+### Added
+- The repository's own skill is now run through `validate_skill.py` by the test
+  suite. The script enforces the format's hard rules — the 1024-character
+  description, the 5000-word body, reserved names, angle brackets in
+  frontmatter — and those applied to our own `SKILL.md` all along with nothing
+  checking. The skill even carries a `.skillcheck-ignore` written for that run,
+  maintained by hand against a check nobody performed.
+- `template/SKILL.md` is checked against the same format rules. It is offered
+  as a starting skill, so it has to be a valid one; the validator itself
+  doesn't suit it, since a bare template legitimately has placeholders and no
+  `references/`.
+
 ## [0.4.0] — 2026-09-05
 
 ### Changed

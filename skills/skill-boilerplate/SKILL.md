@@ -396,6 +396,9 @@ format or of basic engineering discipline, not preferences:
 - Read the existing skills directory before proposing a name (collision check)
 - `description` under the 1024-character hard limit
 - Progressive disclosure: keep SKILL.md lean, push detail into `references/`
+- Facts written as `Label: value`, not as sentences about the value — and the
+  subtraction test: if crossing a sentence out changes nothing the model does,
+  it was decoration. Reasons survive when they settle unforeseen cases.
 - Index every new document the day it is created
 - No self-describing counts in prose ("12 suites") — they rot silently
 - Self-containment: a packaged skill cites nothing outside its own folder

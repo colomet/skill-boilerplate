@@ -104,10 +104,33 @@ not read until after that decision is made. Write it accordingly:
 
 ### Rules that hold regardless
 
+- **Write facts as facts, not as sentences about facts.** Prose costs context
+  and buries the thing it carries. Anything that is a value, a setting, a limit
+  or a name goes as `Label: value`.
+
+  > This project was set up with scalability in mind, using Node.
+
+  becomes
+
+  > Runtime: Node.js v20
+
+  The test is subtraction: cross out a sentence and ask whether the model would
+  do anything differently. If not, it was decoration. Prefer the imperative over
+  explanation, an example over a description, and one rule with the case that
+  motivated it over three stated in general.
+
+  **The exception is judgement.** Reasons stay when they let the model resolve a
+  case you didn't foresee — "guard for uniqueness *because a blind replace hits
+  the wrong line silently*" earns its words; "this is important" doesn't. Cut
+  the padding around the reason, not the reason.
 - **Keep SKILL.md lean.** Only the frontmatter is loaded on every activation;
   the body is loaded when the skill fires. Detail that isn't needed every time
   belongs in `references/`. Once the body gets long, pruning is the condition
   for adding, not a later chore.
+
+  This is a separate rule from the one above, and neither substitutes for the
+  other: moving text to `references/` divides it, writing densely reduces it. A
+  body split across four files is still long when the skill fires.
 - **Reference by name, never by section number.** "(see Packaging)" survives a
   reordering; "(§4.2)" does not.
 - **Self-containment.** Everything the skill cites lives inside its own folder.

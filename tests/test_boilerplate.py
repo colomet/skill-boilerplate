@@ -844,6 +844,57 @@ class RepositoryTests(unittest.TestCase):
                 "{} in docs/configuration.md no longer matches the question "
                 "the skill asks".format(name))
 
+    def test_the_boilerplate_passes_its_own_validator(self):
+        """The skill this repository ships is checked by the script it ships.
+
+        `validate_skill.py` enforces the format's hard rules -- the 1024-char
+        description, the 5000-word body, reserved names, angle brackets in
+        frontmatter. Those applied to our own SKILL.md all along, and nothing
+        was checking. The skill even carries a `.skillcheck-ignore` written for
+        this run, maintained by hand against a check nobody performed.
+        """
+        validator = os.path.join(ROOT, "skills", "skill-boilerplate",
+                                 "scripts", "generated", "validate_skill.py")
+        skill = os.path.join(ROOT, "skills", "skill-boilerplate")
+        result = run([validator, skill])
+        self.assertEqual(result.returncode, 0,
+                         result.stdout + result.stderr)
+        self.assertIn("0 errors", result.stdout)
+
+    def test_template_passes_the_hard_format_rules(self):
+        """`template/` is offered as a starting skill, so it has to be one.
+
+        It isn't run through the validator -- a bare template legitimately has
+        placeholders and no `references/` -- but the rules that come from the
+        format rather than from taste apply to it like anything else.
+        """
+        import re as _re
+        path = os.path.join(ROOT, "template", "SKILL.md")
+        with open(path, encoding="utf-8") as f:
+            text = f.read()
+
+        self.assertTrue(text.startswith("---\n"), "no frontmatter")
+        frontmatter = text.split("---\n")[1]
+        body = text.split("---\n", 2)[2]
+
+        self.assertNotIn("<", frontmatter,
+                         "angle brackets in frontmatter go into the system "
+                         "prompt and can be read as markup")
+
+        fields = {}
+        for line in frontmatter.split("\n"):
+            match = _re.match(r"^([a-z_]+):\s*(.*)$", line)
+            if match:
+                fields[match.group(1)] = match.group(2).strip().strip("\"'")
+
+        name = fields.get("name", "")
+        self.assertRegex(name, r"^[a-z0-9]+(-[a-z0-9]+)*$")
+        for reserved in ("claude", "anthropic"):
+            self.assertNotIn(reserved, name.lower(),
+                             reserved + " is reserved in skill names")
+        self.assertLessEqual(len(fields.get("description", "")), 1024)
+        self.assertLess(len(body.split()), 5000)
+
     def test_no_readme_inside_a_skill_folder(self):
         skill_dir = os.path.join(ROOT, "skills")
         for base, _, files in os.walk(skill_dir):
